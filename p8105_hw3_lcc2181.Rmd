@@ -30,8 +30,7 @@ There are `r nrow(instacart)` observations and `r ncol(instacart)` variables in 
 How many aisles are there and which aisles are the most items ordered from?
 
 *Using the `count` function to count the number of aisle_id's in the instacart data set, and the `distinct` function to remove duplicate aisle_ids to ensure all aisle_id's being counted are unique.
-*Using the `group_by` function to group by aisle_id
-*Using the `summarize` function to summarize the total number of observations by aisle_id, assuming each observation in the dataset represents an item ordered. 
+*Using the `group_by` function to group by aisle_id and `summarize` to summarize the total number of observations by aisle_id, assuming each observation in the dataset represents an item ordered. 
 *Using `arrrange` to order in descending order, so that aisles will be listed in order most to least items ordered.
 
 ```{r}
@@ -49,8 +48,7 @@ instacart %>%
 
 Making a plot showing number of items ordered in each aisle. The plot is limited to aisles with more than 10000 items ordered.
 
-*Using `group_by` to group by aisle_id
-*Using `summarize` to count the total number of observations by aisle_id, assuming each observation (row) represents an item ordered
+*Using `group_by` to group by aisle_id and `summarize` to count the total number of observations by aisle_id, assuming each observation (row) represents an item ordered
 *Using `filter` to restrict to aisles with more than 10,0000 items ordered
 *Using `ggplot` to create a plot with aisle_id on the x-axis and number_of_items on the y-axis
 
@@ -76,8 +74,7 @@ Making a table showing the three most popular items in each of the aisles.
 ```{r}
 instacart %>% 
   filter(
-    aisle %in% c("baking ingredients", "dog food care", "packaged vegetables   fruits")
-  ) %>%
+    aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) %>%
   group_by(aisle, product_name) %>% 
   summarize(n_items = n()) %>% 
   filter(min_rank(desc(n_items)) < 4) %>% 
@@ -111,3 +108,87 @@ instacart %>%
   relocate(product_name, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday) %>% 
   knitr::kable()
 ```
+
+## Problem 2
+
+Loading the BRFSS data for Problem 2
+
+```{r}
+data("brfss_smart2010")
+```
+
+Cleaning the BRFSS data and assigning to new data frame `brfss_df`:
+
+*Using `janitor::clean_names()` to format the variable names appropriately
+*Using `rename` to change the variable name "locationabbr" to "state" and "locationdesc" to "location"
+*Using `filter` to focus only on the "Overall Health" topic
+*Using `mutate` to convert response into a factor variable with 5 levels ordered from "Poor" to "Excellent"
+
+```{r}
+brfss_df =
+  brfss_smart2010 %>% 
+  janitor::clean_names() %>%
+  rename(state = locationabbr, location = locationdesc) %>% 
+  filter(topic == "Overall Health") %>% 
+  mutate(response = factor(response, 
+      levels = c("Poor", "Fair", "Good", "Very good", "Excellent")), 
+      ordered = TRUE
+  )
+```
+
+In 2002, which states were observed at 7 or more locations? What about in 2010?
+
+*Using `filter` to filter to the correct year (2002 in the first code block and 2010 in the second)
+*Using `group_by` to group by state and `summarize` to count location the number of distinct locations
+*Using `filter` to filter to states with 7 or more locations
+
+```{r}
+brfss_df %>% 
+  filter(year == 2002) %>% 
+  group_by(state) %>% 
+  summarize(n_locations = n_distinct(location)) %>% 
+  filter(n_locations >= 7)
+
+brfss_df %>% 
+  filter(year == 2010) %>% 
+  group_by(state) %>% 
+  summarize(n_locations = n_distinct(location)) %>% 
+  filter(n_locations >= 7)
+```
+
+*In 2002, the states with 7 or more locations were CT, FL, MA, NC, NJ, and PA
+*In 2010, the states with 7 or more locations were CA, CO, FL, MA, MD, NC, NE, NJ, NY, OH, PA, SC, TX, and WA
+
+Constructing a data set limited to "Excellent" responses, containing year, state, and a variable that averages data_value across locations within state. 
+Making a spaghetti plot of this average value of time within a state.
+
+*Filtering to only include response values of "Excellent"
+*Using `group_by` to group by state and year and `summarize` to create a new variable avg_data_value that takes the mean data_value across locations within a state in a given year
+*Creating `ggplot` with year on x-axis and avg_data_value on y-axis and grouping by state to show a different line for each state
+
+```{r}
+brfss_excellent =
+  brfss_df %>% 
+  filter(response == "Excellent") %>% 
+  group_by(state, year) %>% 
+  summarize(avg_data_value = mean(data_value))
+
+brfss_excellent %>% 
+  ggplot(aes(x = year, y = avg_data_value, group = state)) +
+  geom_line()
+```
+
+Making a two-panel plot (for the years 2006 and 2010) showing distribution of data_value for responses among locations in NY state
+
+*Using `filter` to filter to only NY state and to include either years 2006 or 2010
+*Creating `ggplot` with response on x-axis and data_value on y_axis, adding `geom_point()` to include points for each location, and adding `facet_grid` to split into a two-panel plot by year (2006 and 2010)
+
+```{r}
+brfss_df %>% 
+  filter(state == "NY", year %in% c(2006, 2010)) %>% 
+  ggplot(aes(x = response, y = data_value)) +
+  geom_point() +
+  facet_grid(. ~ year)
+```
+
+
