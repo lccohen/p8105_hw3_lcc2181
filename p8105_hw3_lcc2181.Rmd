@@ -58,8 +58,16 @@ instacart %>%
   summarize(number_of_items = n()) %>% 
   filter(number_of_items > 10000) %>% 
   ggplot(aes(x = aisle_id, y = number_of_items)) +
-  geom_point()
+  geom_point() +
+  labs(
+    title = "Number of Items Ordered In Each Aisle",
+    x = "Aisle ID",
+    y = "Number of Items Ordered"
+  )
 ```
+
+In this plot, I can see the number of items ordered across the different aisles, limited to only aisles in which over 10,000 items were ordered. There are two aisles that appear to be outliers as they have a much greater numer of items ordered in those aisles compared with any other aisle (for both of these aisles, the number of items ordered is over 140,000).
+
 
 Making a table showing the three most popular items in each of the aisles.
 
@@ -82,6 +90,8 @@ instacart %>%
   arrange(aisle, desc(n_items)) %>% 
   knitr::kable()
 ```
+
+This table shows the three most popular items in each of the aisles "baking ingredients", "dog food care", and "packaged vegetables fruits". In the "baking ingredients" aisle, the most popular item is Light Brown Sugar followed by Pure Baking Soda and then Cane Sugar. In the "dog food care" aisle, the most popular item is Snack Sticks Chicken & Rice Recipe Dog Treats. The second most popular item in the dog food aisle is Organix Chicken & Brown Rice Recipe and the third most popular item is 	Small Dog Biscuits. In the "packaged vegetables fruits" aisle, the three most popular items are Organic Baby Spinach, Organic Raspberries, and Organic Blueberries.
 
 Making a table showing mean hour of day at which Pink Lady Apples and Coffee Ice Cream are ordered each day of week
 
@@ -108,6 +118,8 @@ instacart %>%
   relocate(product_name, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday) %>% 
   knitr::kable()
 ```
+
+This table shows the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered for each day of the week. For every day of the week except for Friday, the mean hour of day in which Pink Lady Applies are ordered is earlier than the mean hour of the day in which Coffee Ice Cream is ordered.
 
 ## Problem 2
 
@@ -175,8 +187,15 @@ brfss_excellent =
 
 brfss_excellent %>% 
   ggplot(aes(x = year, y = avg_data_value, group = state)) +
-  geom_line()
+  geom_line() +
+  labs(
+    title = "Average Data Value Over Time Within Each State",
+    x = "Year",
+    y = "Average Data Value"
+  )
 ```
+
+The plot shows the average data value across the years 2002 to 2010 for each state. Each state's average data value is plotted in a separate line. From this plot, we can see that the lowest average data value occurred in 2005. Overall, it appears that the majority of average data values during this period were between 20 and 30.
 
 Making a two-panel plot (for the years 2006 and 2010) showing distribution of data_value for responses among locations in NY state
 
@@ -187,9 +206,16 @@ Making a two-panel plot (for the years 2006 and 2010) showing distribution of da
 brfss_df %>% 
   filter(state == "NY", year %in% c(2006, 2010)) %>% 
   ggplot(aes(x = response, y = data_value)) +
-  geom_point() +
-  facet_grid(. ~ year)
+  geom_boxplot() +
+  facet_grid(. ~ year) +
+  labs(
+    title = "Distribution of Data Value for Responses among Locations in NY",
+    x = "Response",
+    y = "Data Value"
+  )
 ```
+
+This plot shows the response distribution of data values for responses using a boxplot. Responses from 2006 and 2010 are separated into two panels. In each panel, we can see the boxplot for each response value (ranging from "Poor" to "Excellent"). In each boxplot, we can see the median data value as indicated by the line on the box plot as well as the distribution of responses, including the min and max, as indicated by the lines above and below the box. In both 2006 and 2010, responses of "Poor" had the lower median data value compared to other any other response.
 
 ## Problem 3
 
