@@ -29,22 +29,21 @@ There are `r nrow(instacart)` observations and `r ncol(instacart)` variables in 
 
 How many aisles are there and which aisles are the most items ordered from?
 
-*Using the `count` function to count the number of aisle_id's in the instacart data set, and the `distinct` function to remove duplicate aisle_ids to ensure all aisle_id's being counted are unique.
-*Using the `group_by` function to group by aisle_id and `summarize` to summarize the total number of observations by aisle_id, assuming each observation in the dataset represents an item ordered. 
+*Using the `count` function to count the number of aisles in the instacart data set, and the `distinct` function to remove duplicate aisles to ensure all aisles being counted are unique.
+*Using the `group_by` function to group by aisle and `summarize` to summarize the total number of observations by aisle, assuming each observation in the data set represents an item ordered. 
 *Using `arrrange` to order in descending order, so that aisles will be listed in order most to least items ordered.
 
 ```{r}
-count(distinct(instacart, aisle_id)) 
+count(distinct(instacart, aisle))
 
 instacart %>% 
-  group_by(aisle_id) %>% 
+  group_by(aisle) %>% 
   summarize(number_of_items = n()) %>% 
   arrange(desc(number_of_items))
 
 ```
 
-*There are 134 aisles. 
-*The most items are ordered from aisle 83 (150609) followed by aisle 24 (150473).
+There are 134 aisles. The most items are ordered from the "fresh vegetables" aisle (150609) followed by the "fresh fruits" aisle (150473).
 
 Making a plot showing number of items ordered in each aisle. The plot is limited to aisles with more than 10000 items ordered.
 
@@ -57,8 +56,8 @@ instacart %>%
   group_by(aisle_id) %>% 
   summarize(number_of_items = n()) %>% 
   filter(number_of_items > 10000) %>% 
-  ggplot(aes(x = aisle_id, y = number_of_items)) +
-  geom_point() +
+  ggplot() +
+  geom_bar(mapping = aes(x = aisle_id, y = number_of_items), stat = "identity") +
   labs(
     title = "Number of Items Ordered In Each Aisle",
     x = "Aisle ID",
@@ -66,14 +65,14 @@ instacart %>%
   )
 ```
 
-In this plot, I can see the number of items ordered across the different aisles, limited to only aisles in which over 10,000 items were ordered. There are two aisles that appear to be outliers as they have a much greater numer of items ordered in those aisles compared with any other aisle (for both of these aisles, the number of items ordered is over 140,000).
+In this plot, I can see the number of items ordered across the different aisles, shown by their aisle ID on the x-axis. The plot is limited to only aisles in which over 10,000 items were ordered, so there are 39 aisles represented. There are two aisles which appear to have a much greater number of items ordered in those aisles compared with the other aisles (for both of these aisles, the number of items ordered is over 150,000).
 
 
-Making a table showing the three most popular items in each of the aisles.
+Making a table showing the three most popular items in each of the aisles "baking ingredients", "dog food care", and "packaged vegetables fruits", including the number of times each item is ordered.
 
 *Using `filter` to filter the data set to the three aisles - "baking ingredients", "dog food care", and "packaged vegetables fruits"
 *Using `group_by` to group the observations by aisle and product_name
-*Using `summarize` to count the total number of observations by aisle_id, assuming each observation (row) represents an item ordered
+*Using `summarize` to count the total number of observations by aisle, assuming each observation (row) represents an item ordered
 *Using `filter` to filter to those with a ranking of less than 4 (so, a ranking of 1, 2, or 3) as determined by using the `min_rank` function with descending n_items to ensure that those most number of items are ranked as highest
 *Using `select` to ensure that the variables aisle, product_name, and n_items are included in the table
 *Using `arrange` to order the table by aisle and most to least number of items in each aisle
@@ -93,7 +92,7 @@ instacart %>%
 
 This table shows the three most popular items in each of the aisles "baking ingredients", "dog food care", and "packaged vegetables fruits". In the "baking ingredients" aisle, the most popular item is Light Brown Sugar followed by Pure Baking Soda and then Cane Sugar. In the "dog food care" aisle, the most popular item is Snack Sticks Chicken & Rice Recipe Dog Treats. The second most popular item in the dog food aisle is Organix Chicken & Brown Rice Recipe and the third most popular item is 	Small Dog Biscuits. In the "packaged vegetables fruits" aisle, the three most popular items are Organic Baby Spinach, Organic Raspberries, and Organic Blueberries.
 
-Making a table showing mean hour of day at which Pink Lady Apples and Coffee Ice Cream are ordered each day of week
+Making a table showing mean hour of day at which Pink Lady Apples and Coffee Ice Cream are ordered each day of week.
 
 *Using `filter` to limit the table to the products "Pink Lady Apples" and "Coffee Ice Cream"
 *Using `mutate` to convert the order_dow variable into day names rather than numbers using the `recode` function, assuming that Sunday represents day 0.
@@ -119,7 +118,7 @@ instacart %>%
   knitr::kable()
 ```
 
-This table shows the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered for each day of the week. For every day of the week except for Friday, the mean hour of day in which Pink Lady Applies are ordered is earlier than the mean hour of the day in which Coffee Ice Cream is ordered.
+This table shows the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered for each day of the week. For every day of the week except for Friday, the mean hour of day in which Pink Lady Apples are ordered is earlier than the mean hour of the day in which Coffee Ice Cream is ordered.
 
 ## Problem 2
 
@@ -168,11 +167,9 @@ brfss_df %>%
   filter(n_locations >= 7)
 ```
 
-*In 2002, the states with 7 or more locations were CT, FL, MA, NC, NJ, and PA
-*In 2010, the states with 7 or more locations were CA, CO, FL, MA, MD, NC, NE, NJ, NY, OH, PA, SC, TX, and WA
+In 2002, the states with 7 or more locations were CT, FL, MA, NC, NJ, and PA. In 2010, the states with 7 or more locations were CA, CO, FL, MA, MD, NC, NE, NJ, NY, OH, PA, SC, TX, and WA.
 
-Constructing a data set limited to "Excellent" responses, containing year, state, and a variable that averages data_value across locations within state. 
-Making a spaghetti plot of this average value of time within a state.
+Constructing a data set limited to "Excellent" responses, containing year, state, and a variable that averages data_value across locations within state. Making a spaghetti plot of this average value of time within a state.
 
 *Filtering to only include response values of "Excellent"
 *Using `group_by` to group by state and year and `summarize` to create a new variable avg_data_value that takes the mean data_value across locations within a state in a given year
@@ -244,10 +241,12 @@ accel_df =
   mutate(minute = as.numeric(minute))
 
 ```
+
 The resulting dataset has `r nrow(accel_df)` observations and `r ncol(accel_df)` columns. The variables are week, day_id, day, weekday_vs_weekend, minute, and activity. There is an observation recording activity counts for each minute of each day over the course of 35 days.
 
 
 Creating a total activity variable for each day, aggregating across minutes
+
 *Using `group_by` to group by day and `summarize` to create a new variable total_activity which is sum of all activity observations from each minute of the day.
 
 ```{r}
@@ -259,6 +258,7 @@ accel_df %>%
 The individual's activity counts vary substantially by day. His highest activity count is reported on day 16 (685910.00) and his lowest total activity count is reported on days 24 and 31 (1440.00).
 
 Making a single-panel plot that shows the 24-hour activity time courses each day, using color to indicate day of the week.
+
 *Using `mutate` to divide the minute variable by 60 in order to convert minutes into hours
 *Creating a `ggplot` with hour on the x-axis and activity on the y-axis, colored by day of the week; adding `geom_smooth()` to create a line for each day.
 
@@ -274,4 +274,5 @@ accel_df %>%
   ) +
   scale_x_continuous(breaks = c(0, 4, 8, 12, 16, 20, 24))
 ```
+
 Based on this graph, I can tell the day of week and hour of day the individual had the highest activity count. Specifically, the individual appears to have been most active on a Wednesday in the 19th hour of the day.
