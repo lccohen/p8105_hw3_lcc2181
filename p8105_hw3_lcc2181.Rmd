@@ -215,10 +215,10 @@ This plot shows the response distribution of data values for responses using a b
 
 Loading, tidying and wrangling the data for use in Problem 3
 
-*Using `read_csv` to load in the data file
-*Including a weekday vs. weekend variable by using `mutate` to create new variable weekday_vs_weekend which is created using `recode` to code days of the week
-*Using `pivot_longer` to display activity count at each minute as a new observation (row) rather than as a variable (column)
-*Using mutate to convert new `minute` variable to numeric
+* Using `read_csv` to load in the data file
+* Including a weekday vs. weekend variable by using `mutate` to create new variable weekday_vs_weekend which is created using `recode` to code days of the week
+* Using `pivot_longer` to display activity count at each minute shown as a new observation rather than as a separate column
+* Using mutate to convert new `minute` variable to numeric
 
 ```{r}
 accel_df =
@@ -236,28 +236,37 @@ accel_df =
     values_to = "activity"
   ) %>% 
   mutate(minute = as.numeric(minute))
-
 ```
 
 The resulting dataset has `r nrow(accel_df)` observations and `r ncol(accel_df)` columns. The variables are week, day_id, day, weekday_vs_weekend, minute, and activity. There is an observation recording activity counts for each minute of each day over the course of 35 days.
 
 
-Creating a total activity variable for each day, aggregating across minutes
+Creating a total activity variable for each day, aggregating across minutes, and making a table showing these totals
 
-*Using `group_by` to group by day and `summarize` to create a new variable total_activity which is sum of all activity observations from each minute of the day.
+* Using `group_by` to group by day and week and `summarize` to create a new variable total_activity which is sum of all activity observations from each minute of the day
+* Using `pivot_wider` to make the days of the week columns take on values from the newly created total_activity variable, while weeks remain as rows
+* Using `relocate` to order days of the week in chronological order
+* Using `knitr::kable()` to make the table reader-friendly
 
 ```{r}
 accel_df %>% 
-  group_by(day_id) %>% 
-  summarize(total_activity = sum(activity))
+  group_by(day, week) %>% 
+  summarize(total_activity = sum(activity)) %>% 
+  pivot_wider(
+    names_from = "day",
+    values_from = "total_activity"
+  ) %>% 
+  relocate(week, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday) %>% 
+  knitr::kable()
 ```
 
-The individual's activity counts vary substantially by day. His highest activity count is reported on day 16 (685910.00) and his lowest total activity count is reported on days 24 and 31 (1440.00).
+The individual's total activity varies substantially by day. His highest total activity is reported on the Monday in Week 3 (685910.00). One trend I observed is that in the last two weeks (Week 4 and Week 5), the individual records his lowest total activity level on Saturday, with the individual having a total activity level of 1440 on both of the final two Saturdays.
 
 Making a single-panel plot that shows the 24-hour activity time courses each day, using color to indicate day of the week.
 
-*Using `mutate` to divide the minute variable by 60 in order to convert minutes into hours
-*Creating a `ggplot` with hour on the x-axis and activity on the y-axis, colored by day of the week; adding `geom_smooth()` to create a line for each day.
+* Using `mutate` to divide the minute variable by 60 in order to convert minutes into hours
+* Creating a `ggplot` with hour on the x-axis and activity on the y-axis, grouped by day_id, and colored by day of the week; adding `geom_line()` to create a line for each day
+* Additional code is added to format the plot, include making the scale of the x-axis increments by 4 up to 24, moving the legend to the bottom, and using the viridis color scheme
 
 ```{r}
 accel_df %>% 
@@ -269,7 +278,12 @@ accel_df %>%
     x = "Hour of the Day",
     y = "Activity"
   ) +
-  scale_x_continuous(breaks = c(0, 4, 8, 12, 16, 20, 24))
+  scale_x_continuous(breaks = c(0, 4, 8, 12, 16, 20, 24))  +
+  theme(legend.position = "bottom") +
+  viridis::scale_color_viridis(
+    name = "day", 
+    discrete = TRUE
+  )
 ```
 
-Based on this graph, I can tell the day of week and hour of day the individual had the highest activity count. Specifically, the individual appears to have been most active on a Wednesday in the 19th hour of the day.
+Based on this graph, I can tell that the individual's highest activity count was over 8,750. I can also tell the day of week and hour of day in which the individual achieved his highest activity count. Specifically, this appears to have occurred on a Wednesday in the 19th hour of the day. In general, it appears the individual often has relatively high activity counts between the 20th and 22nd hours of the day, particularly on Fridays. Additionally, regardless of day of the week, the individual generally has relatively low activity counts in the first five hours of the day.
